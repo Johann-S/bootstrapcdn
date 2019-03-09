@@ -36,6 +36,7 @@ const staticify    = require('staticify')(PUBLIC_DIR, {
 });
 
 const config  = require('./config');
+const CSP     = require('./config/helmet-csp');
 const helpers = require('./lib/helpers');
 const routes  = require('./routes');
 
@@ -95,7 +96,7 @@ if (NODE_ENV === 'production') {
 app.use(compression());
 app.use(staticify.middleware);
 
-app.use(favicon(path.join(PUBLIC_DIR, config.favicon.uri), '7d'));
+app.use(favicon(path.join(PUBLIC_DIR, config.app.favicon.uri), '7d'));
 
 app.use((req, res, next) => {
     // Create a nonce for use with CSP;
@@ -136,7 +137,7 @@ app.use(helmet.hsts({
 app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
 
 app.use(helmet.contentSecurityPolicy({
-    directives: config.CSP,
+    directives: CSP,
 
     // This module will detect common mistakes in your directives and throw errors
     // if it finds any. To disable this, enable "loose mode".

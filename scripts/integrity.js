@@ -5,11 +5,10 @@
 const fs         = require('fs');
 const path       = require('path');
 const yaml       = require('js-yaml');
-const config     = require('../config');
+const { files }  = require('../config');
 const { generateSri } = require('./sri');
 
-const filesConfig = config.loadConfig('_files.yml');
-const configFile = config.getConfigPath('_files.yml');
+const configFile = path.resolve(__dirname, '../config/_files.yml');
 
 // create backup file
 fs.createReadStream(configFile)
@@ -35,10 +34,10 @@ function exists(file) {
 // bootswatch{3,4}
 ((() => {
     ['bootswatch3', 'bootswatch4'].forEach((key) => {
-        const bootswatch = buildPath(filesConfig[key].bootstrap);
+        const bootswatch = buildPath(files[key].bootstrap);
 
-        for (const theme of filesConfig[key].themes) {
-            const file = bootswatch.replace('SWATCH_VERSION', filesConfig[key].version)
+        for (const theme of files[key].themes) {
+            const file = bootswatch.replace('SWATCH_VERSION', files[key].version)
                                  .replace('SWATCH_NAME', theme.name);
 
             if (exists(file)) { // always regenerate
@@ -50,7 +49,7 @@ function exists(file) {
 
 // bootlint
 ((() => {
-    for (const bootlint of filesConfig.bootlint) {
+    for (const bootlint of files.bootlint) {
         const file = buildPath(bootlint.javascript);
 
         if (exists(file)) { // always regenerate
@@ -61,7 +60,7 @@ function exists(file) {
 
 // bootstrap
 ((() => {
-    for (const bootstrap of filesConfig.bootstrap) {
+    for (const bootstrap of files.bootstrap) {
         let { javascriptBundle } = bootstrap;
 
         const javascript = buildPath(bootstrap.javascript);
@@ -87,7 +86,7 @@ function exists(file) {
 
 // fontawesome
 ((() => {
-    for (const fontawesome of filesConfig.fontawesome) {
+    for (const fontawesome of files.fontawesome) {
         const stylesheet = buildPath(fontawesome.stylesheet);
 
         if (exists(stylesheet)) {
@@ -97,7 +96,7 @@ function exists(file) {
 }))();
 
 fs.writeFileSync(configFile,
-    yaml.dump(filesConfig, {
+    yaml.dump(files, {
         lineWidth: -1
     })
 );
